@@ -2,7 +2,8 @@
 
 # Requisitos
 
-Node.js >= v24.15.0
+Node.js >= v24.15.0.
+
 npm 
 
 # Instalación
