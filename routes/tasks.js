@@ -1,43 +1,45 @@
 var express = require('express');
 var router = express.Router();
+var taskSchema = require('../models/tasks'); 
 
-let tasks = [
-  {id_: 1, name: "Task 1", description: "Description for Task 1", duedate: "2024-07-01"},
-  {id_: 2, name: "Task 2", description: "Description for Task 2", duedate: "2024-07-02"},
-  {id_: 3, name: "Task 3", description: "Description for Task 3", duedate: "2024-07-03"}
-];  
-
-router.get('/getTasks', (req, res) => {
-  res.status(200).json(tasks);
-});
-
-router.post('/addTask', (req, res) => {
-  const { name, description, duedate } = req.body;
-    if (name && description && duedate) {  const newTask = {
-    id_: Math.floor(Math.random() * 10000) + 1, 
-    name,
-    description,
-    duedate
-  };
-  tasks.push(newTask);
-  res.status(200).json(newTask);} else {
-    res.status(400).json({ error: "Please provide all required fields" });
+router.get('/getTasks', async function (req, res, next) {
+  try {
+    let response = await taskSchema.find({});
+    res.status(200).json(response);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
-router.delete('/removeTask/:id', (req, res) => {
-    if (req.params.id && req.params.id && !isNaN(req.params.id)) {
-        const taskId = parseInt(req.params.id);
-  tasks = tasks.filter(task => task.id_ !== taskId);
-  res.status(200).json({ message: `Task with id ${taskId} deleted` });
-    } else {
-        res.status(400).json({ error: "Please provide a valid task ID" });
-    }
+router.post('/addTask', async function (req, res, next) {
+  try {
+    const { name, description, dueDate } = req.body;
 
+    if (name && description && dueDate) {
+      req.body.dueDate = new Date(dueDate);
+
+      let task = new taskSchema(req.body);
+      let response = await task.save();
+      
+      res.status(200).json(response);
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
+router.delete('/removeTask/:id', async function (req, res, next) {
+  if (req.params && req.params.id) {
+    let id = req.params.id;
+    try {
+      await taskSchema.findByIdAndDelete(id);
+    return  res.status(200).json({ message: `Goal with id ${id} deleted` });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  } else {
+    res.status(400).json({ error: "Please provide a valid task ID" });
+  }
+});
 
 module.exports = router;
-
-
-

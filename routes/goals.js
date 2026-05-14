@@ -1,39 +1,48 @@
 var express = require('express');
 var router = express.Router();
+var goalSchema = require('../models/goals');
 
-let goals = [
-  {id_: 1, name: "Goal 1", description: "Description for Goal 1", duedate: "2024-07-01"},
-  {id_: 2, name: "Goal 2", description: "Description for Goal 2", duedate: "2024-07-02"},
-  {id_: 3, name: "Goal 3", description: "Description for Goal 3", duedate: "2024-07-03"}
-];  
-
-router.get('/getGoals', (req, res) => {
-  res.status(200).json(goals);
+router.get('/getGoals', async function (req, res, next){
+try {
+    let response = await goalSchema.find({});
+    res.status(200).json(response);
+} catch (err) {
+    res.status(500).json({ 
+      error: err.message  
+    });
+  }
 });
 
-router.post('/addGoal', (req, res) => {
-  const { name, description, duedate } = req.body;
-  if (name && description && duedate) {
-  const newGoal = {
-    id_: Math.floor(Math.random() * 10000) + 1, 
-    name,
-    description,
-    duedate
-  };
-  goals.push(newGoal);
-  res.status(200).json(newGoal);
+router.post('/addGoal', async function (req, res, next){
+try {
+    req.body.dueDate = new Date(req.body.dueDate);
+
+    let goal = new goalSchema(req.body);
+    let response = await goal.save();
+    return  res.status(200).json(response);
+} catch (err) {
+    res.status(500).json({ 
+      error: err.message  
+    });
+  }
+});
+
+
+router.delete('/removeGoal/:id', async function (req, res, next) {
+
+if (req.params && req.params.id) {
+    
+    let id = req.params.id;
+
+try {
+    await goalSchema.findByIdAndDelete(id);
+    return  res.status(200).json({ message: `Goal with id ${id} deleted` });
+} catch (err) {
+    res.status(500).json({ 
+      error: err.message  
+    });
+  }
 } else {
-  res.status(400).json({ error: "Please provide all required fields" });
-}
-});
-
-
-router.delete('/removeGoal/:id', (req, res) => {
-  if (req.params.id && req.params.id && !isNaN(req.params.id)) {
-    const goalId = parseInt(req.params.id);
-    goals = goals.filter(goal => goal.id_ !== goalId);
-    res.json({ message: `Goal with id ${goalId} deleted` });
-  }else {  
     res.status(400).json({ error: "Please provide a valid goal ID" });
 }
 });

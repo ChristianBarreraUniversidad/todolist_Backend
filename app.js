@@ -4,12 +4,28 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+var connectDB  = require('./config/db');
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var tasksRouter = require('./routes/tasks');
 var goalsRouter = require('./routes/goals'); 
 
 var app = express();
+
+async function initializeDatabase() {
+  try {
+    if  (process.env.DATABASE === 'MONGODB') {
+      await connectDB();
+      console.log('Database connected successfully');
+    }
+  } catch (err) {
+    console.error('Database connection error:', err);
+    process.exit(1); 
+  }
+}
+
+initializeDatabase();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
