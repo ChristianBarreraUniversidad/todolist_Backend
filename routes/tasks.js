@@ -5,7 +5,7 @@ var taskSchema = require('../models/tasks');
 router.get('/getTasks', async function (req, res, next) {
   try {
     let response = await taskSchema.find({});
-    return res.status(200).json(response);
+    return res.status(200).json({ message: "Tasks retrieved successfully", data: response });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -21,7 +21,7 @@ router.post('/addTask', async function (req, res, next) {
       let task = new taskSchema(req.body);
       let response = await task.save();
       
-      return res.status(200).json(response);
+      return res.status(200).json({ message: "Task added successfully", data: response });
     }
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -38,7 +38,7 @@ router.delete('/removeTask/:id', async function (req, res, next) {
       return res.status(500).json({ error: err.message });
     }
   } else {
-    res.status(400).json({ error: "Please provide a valid task ID" });
+    return res.status(400).json({ error: "Please provide a valid task ID" });
   }
 });
 

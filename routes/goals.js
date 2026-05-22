@@ -5,9 +5,9 @@ var goalSchema = require('../models/goals');
 router.get('/getGoals', async function (req, res, next){
 try {
     let response = await goalSchema.find({});
-    return res.status(200).json(response);
+    return res.status(200).json({message : "Goals retrieved successfully"});
 } catch (err) {
-    res.status(500).json({ 
+    return res.status(500).json({ 
       error: err.message  
     });
   }
@@ -19,9 +19,9 @@ try {
 
     let goal = new goalSchema(req.body);
     let response = await goal.save();
-    return  res.status(200).json(response);
+    return  res.status(200).json({message : "Goal added successfully", data: response});
 } catch (err) {
-    res.status(500).json({ 
+    return res.status(500).json({ 
       error: err.message  
     });
   }
@@ -38,12 +38,12 @@ try {
     await goalSchema.findByIdAndDelete(id);
     return  res.status(200).json({ message: `Goal with id ${id} deleted` });
 } catch (err) {
-    res.status(500).json({ 
+    return res.status(500).json({ 
       error: err.message  
     });
   }
 } else {
-    res.status(400).json({ error: "Please provide a valid goal ID" });
+    return res.status(400).json({ error: "Please provide a valid goal ID" });
 }
 });
 
