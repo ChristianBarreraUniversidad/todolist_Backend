@@ -5,7 +5,7 @@ var goalSchema = require('../models/goals');
 router.get('/getGoals', async function (req, res, next){
 try {
     let response = await goalSchema.find({});
-    res.status(200).json(response);
+    return res.status(200).json(response);
 } catch (err) {
     res.status(500).json({ 
       error: err.message  
